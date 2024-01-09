@@ -185,9 +185,6 @@ export interface DatasourcePlus extends IntegrationBase {
   // this returns the format of the identifier
   getBindingIdentifier(): string
   getStringConcat(parts: string[]): string
-  buildSchema(
-    datasourceId: string,
-    entities: Record<string, Table>
-  ): Promise<Schema>
+  buildSchema(datasourceId: string): Promise<Schema>
   getTableNames(): Promise<string[]>
 }

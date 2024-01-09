@@ -18,7 +18,6 @@ import {
   getSqlQuery,
   buildExternalTableId,
   generateColumnDefinition,
-  finaliseExternalTables,
   SqlClient,
   checkExternalTables,
 } from "./utils"
@@ -380,10 +379,7 @@ class SqlServerIntegration extends Sql implements DatasourcePlus {
    * @param datasourceId - datasourceId to fetch
    * @param entities - the tables that are to be built
    */
-  async buildSchema(
-    datasourceId: string,
-    entities: Record<string, Table>
-  ): Promise<Schema> {
+  async buildSchema(datasourceId: string): Promise<Schema> {
     await this.connect()
     let tableInfo: MSSQLTablesResponse[] = await this.runSQL(this.TABLES_SQL)
     if (tableInfo == null || !Array.isArray(tableInfo)) {
@@ -446,10 +442,10 @@ class SqlServerIntegration extends Sql implements DatasourcePlus {
         schema,
       }
     }
-    let externalTables = finaliseExternalTables(tables, entities)
-    let errors = checkExternalTables(externalTables)
+
+    const errors = checkExternalTables(tables)
     return {
-      tables: externalTables,
+      tables,
       errors,
     }
   }

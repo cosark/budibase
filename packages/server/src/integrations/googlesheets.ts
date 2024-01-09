@@ -18,11 +18,7 @@ import {
   TableSourceType,
 } from "@budibase/types"
 import { OAuth2Client } from "google-auth-library"
-import {
-  buildExternalTableId,
-  checkExternalTables,
-  finaliseExternalTables,
-} from "./utils"
+import { buildExternalTableId, checkExternalTables } from "./utils"
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from "google-spreadsheet"
 import fetch from "node-fetch"
 import { cache, configs, context, HTTPError } from "@budibase/backend-core"
@@ -284,10 +280,7 @@ class GoogleSheetsIntegration implements DatasourcePlus {
     return table
   }
 
-  async buildSchema(
-    datasourceId: string,
-    entities: Record<string, Table>
-  ): Promise<Schema> {
+  async buildSchema(datasourceId: string): Promise<Schema> {
     // not fully configured yet
     if (!this.config.auth) {
       return { tables: {}, errors: {} }
@@ -329,9 +322,9 @@ class GoogleSheetsIntegration implements DatasourcePlus {
       },
       10
     )
-    let externalTables = finaliseExternalTables(tables, entities)
-    errors = { ...errors, ...checkExternalTables(externalTables) }
-    return { tables: externalTables, errors }
+
+    errors = { ...errors, ...checkExternalTables(tables) }
+    return { tables: tables, errors }
   }
 
   async query(json: QueryJson) {

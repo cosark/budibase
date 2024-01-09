@@ -8,6 +8,7 @@ import * as datasources from "./datasources"
 import tableSdk from "../tables"
 import { getIntegration } from "../../../integrations"
 import { context } from "@budibase/backend-core"
+import { finaliseExternalTables } from "../../../integrations/utils"
 
 export async function buildFilteredSchema(
   datasource: Datasource,
@@ -35,9 +36,11 @@ export async function buildFilteredSchema(
 
 async function buildSchemaHelper(datasource: Datasource): Promise<Schema> {
   const connector = (await getConnector(datasource)) as DatasourcePlus
-  const externalSchema = await connector.buildSchema(
-    datasource._id!,
-    datasource.entities!
+  const externalSchema = await connector.buildSchema(datasource._id!)
+
+  externalSchema.tables = finaliseExternalTables(
+    externalSchema.tables,
+    datasource.entities || {}
   )
   return externalSchema
 }

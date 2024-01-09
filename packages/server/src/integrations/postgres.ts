@@ -17,7 +17,6 @@ import {
   getSqlQuery,
   buildExternalTableId,
   generateColumnDefinition,
-  finaliseExternalTables,
   SqlClient,
   checkExternalTables,
 } from "./utils"
@@ -285,10 +284,7 @@ class PostgresIntegration extends Sql implements DatasourcePlus {
    * @param datasourceId - datasourceId to fetch
    * @param entities - the tables that are to be built
    */
-  async buildSchema(
-    datasourceId: string,
-    entities: Record<string, Table>
-  ): Promise<Schema> {
+  async buildSchema(datasourceId: string): Promise<Schema> {
     let tableKeys: { [key: string]: string[] } = {}
     await this.openConnection()
     try {
@@ -367,9 +363,8 @@ class PostgresIntegration extends Sql implements DatasourcePlus {
         })
       }
 
-      const finalizedTables = finaliseExternalTables(tables, entities)
-      const errors = checkExternalTables(finalizedTables)
-      return { tables: finalizedTables, errors }
+      const errors = checkExternalTables(tables)
+      return { tables: tables, errors }
     } catch (err) {
       // @ts-ignore
       throw new Error(err)

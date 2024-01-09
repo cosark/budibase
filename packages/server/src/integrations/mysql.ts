@@ -12,14 +12,12 @@ import {
   SourceName,
   Schema,
   TableSourceType,
-  FieldType,
 } from "@budibase/types"
 import {
   getSqlQuery,
   SqlClient,
   buildExternalTableId,
   generateColumnDefinition,
-  finaliseExternalTables,
   checkExternalTables,
 } from "./utils"
 import dayjs from "dayjs"
@@ -278,10 +276,7 @@ class MySQLIntegration extends Sql implements DatasourcePlus {
     }
   }
 
-  async buildSchema(
-    datasourceId: string,
-    entities: Record<string, Table>
-  ): Promise<Schema> {
+  async buildSchema(datasourceId: string): Promise<Schema> {
     const tables: { [key: string]: Table } = {}
     await this.connect()
 
@@ -334,9 +329,8 @@ class MySQLIntegration extends Sql implements DatasourcePlus {
       await this.disconnect()
     }
 
-    let externalTables = finaliseExternalTables(tables, entities)
-    let errors = checkExternalTables(tables)
-    return { tables: externalTables, errors }
+    const errors = checkExternalTables(tables)
+    return { tables, errors }
   }
 
   async queryTableNames() {

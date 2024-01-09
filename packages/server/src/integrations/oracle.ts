@@ -16,7 +16,6 @@ import {
   buildExternalTableId,
   checkExternalTables,
   generateColumnDefinition,
-  finaliseExternalTables,
   getSqlQuery,
   SqlClient,
 } from "./utils"
@@ -255,10 +254,7 @@ class OracleIntegration extends Sql implements DatasourcePlus {
    * @param datasourceId - datasourceId to fetch
    * @param entities - the tables that are to be built
    */
-  async buildSchema(
-    datasourceId: string,
-    entities: Record<string, Table>
-  ): Promise<Schema> {
+  async buildSchema(datasourceId: string): Promise<Schema> {
     const columnsResponse = await this.internalQuery<OracleColumnsResponse>({
       sql: this.COLUMNS_SQL,
     })
@@ -323,9 +319,8 @@ class OracleIntegration extends Sql implements DatasourcePlus {
         })
     })
 
-    let externalTables = finaliseExternalTables(tables, entities)
-    let errors = checkExternalTables(externalTables)
-    return { tables: externalTables, errors }
+    const errors = checkExternalTables(tables)
+    return { tables, errors }
   }
 
   async getTableNames() {
