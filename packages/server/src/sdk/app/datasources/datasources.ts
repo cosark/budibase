@@ -308,7 +308,7 @@ export async function save(
   }
 
   if (preSaveAction[datasource.source]) {
-    await preSaveAction[datasource.source](datasource)
+    await preSaveAction[datasource.source]!(datasource)
   }
 
   const dbResp = await db.put(
@@ -328,7 +328,9 @@ export async function save(
   return { datasource, errors }
 }
 
-const preSaveAction: Partial<Record<SourceName, any>> = {
+const preSaveAction: Partial<
+  Record<SourceName, (datasource: Datasource) => Promise<void>>
+> = {
   [SourceName.GOOGLE_SHEETS]: async (datasource: Datasource) => {
     await googleSetupCreationAuth(datasource.config as any)
   },
