@@ -39,6 +39,7 @@ import { makePropSafe as safe } from "@budibase/string-templates"
 import { getComponentFieldOptions } from "helpers/formFields"
 import { createBuilderWebsocket } from "builderStore/websocket"
 import { BuilderSocketEvent } from "@budibase/shared-core"
+import componentTreeNodesStore from 'stores/portal/componentTreeNodesStore';
 
 const INITIAL_FRONTEND_STATE = {
   initialised: false,
@@ -1046,6 +1047,7 @@ export const getFrontendStore = () => {
         const screen = get(selectedScreen)
         const parent = findComponentParent(screen.props, componentId)
         const index = parent?._children.findIndex(x => x._id === componentId)
+        const componentTreeNodes = get(componentTreeNodesStore);
 
         // Check for screen and navigation component edge cases
         const screenComponentId = `${screen._id}-screen`
@@ -1064,9 +1066,9 @@ export const getFrontendStore = () => {
         if (index > 0) {
           // If sibling before us accepts children, select a descendant
           const previousSibling = parent._children[index - 1]
-          if (previousSibling._children?.length) {
+          if (previousSibling._children?.length && componentTreeNodes[`nodeOpen-${previousSibling._id}`]) {
             let target = previousSibling
-            while (target._children?.length) {
+            while (target._children?.length && componentTreeNodes[`nodeOpen-${target._id}`]) {
               target = target._children[target._children.length - 1]
             }
             return target._id
@@ -1086,6 +1088,7 @@ export const getFrontendStore = () => {
         const screen = get(selectedScreen)
         const parent = findComponentParent(screen.props, componentId)
         const index = parent?._children.findIndex(x => x._id === componentId)
+        const componentTreeNodes = get(componentTreeNodesStore);
 
         // Check for screen and navigation component edge cases
         const screenComponentId = `${screen._id}-screen`
@@ -1095,7 +1098,7 @@ export const getFrontendStore = () => {
         }
 
         // If we have children, select first child
-        if (component._children?.length) {
+        if (component._children?.length && (state.selectedComponentId === navComponentId || componentTreeNodes[`nodeOpen-${component._id}`])) {
           return component._children[0]._id
         } else if (!parent) {
           return null
